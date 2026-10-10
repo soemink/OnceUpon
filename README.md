@@ -228,13 +228,12 @@ Keep working files (`.psd`, `.blend`, `.kra`) in a separate `source/` folder or 
 |---|---|
 | Project Manager | Bianka |
 | Art Directors | Kai, Christina |
-| Environment Artists | Ithzcally, Morgan |
-| Character Design | Morgan |
+| Environment Artists | Ithzcally, Morgan, Eunkyo,  Marcel |
+| Character Design | Kai, Ahn, Morgan |
 | UI & Graphic Design | Lauren, Maddy |
-| Artists | Sebastian, Jac, Marcel |
-| Music | Seb |
-| Programming | Anthony, Kenneth |
-| Social Media | Hachi |
+| Music | Sebastian |
+| Programming | Anthony, Kenneth, MK |
+| Social Media | Jac |
 
 **We're recruiting!** Coders, animators, musicians/SFX, environment artists, writers and 3D generalists — beginners welcome. Reach out on Discord.
 
