@@ -1,0 +1,8 @@
+# Local agent skills, instructions, settings, and generated planning documents.
+.agents/
+.codex/
+AGENTS.md
+AGENTS.override.md
+CLAUDE.md
+SKILL.md
+docs/superpowers/
