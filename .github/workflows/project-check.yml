@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out project and LFS assets
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           lfs: true
           persist-credentials: false
