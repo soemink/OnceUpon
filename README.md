@@ -15,6 +15,7 @@ Bored of living the same day over and over, you leave your town walls for the fi
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [Git Workflow](#git-workflow)
+- [Project Tracking](#project-tracking)
 - [Conventions](#conventions)
 - [Asset Guidelines](#asset-guidelines)
 - [Roadmap](#roadmap)
@@ -57,13 +58,13 @@ Bored of living the same day over and over, you leave your town walls for the fi
 
 | Tool | Purpose |
 |---|---|
-| [Godot 4](https://godotengine.org/) | Game engine |
+| [Godot 4.7.2 standard](https://godotengine.org/) | Game engine; Compatibility renderer for desktop and web |
 | GDScript | Programming language |
-| [Dialogic 2](https://github.com/dialogic-godot/dialogic) | Dialogue, portraits, choices, variables |
+| [Dialogic 2](https://github.com/dialogic-godot/dialogic) | Planned dialogue integration; not installed in the foundation |
 | [Blender](https://www.blender.org/) | 3D environment blockouts |
 | GitHub + Git LFS | Version control |
 
-> ⚠️ Everyone must use the **same Godot 4 version**. Check the pinned message in Discord for the exact version before opening the project.
+> Everyone must use **Godot 4.7.2 standard**, as pinned in `.godot-version`. Use GDScript and the Compatibility renderer throughout this project.
 
 ---
 
@@ -71,7 +72,7 @@ Bored of living the same day over and over, you leave your town walls for the fi
 
 ### 1. Install the tools
 
-- [Godot 4](https://godotengine.org/download) — **standard version** (not .NET)
+- [Godot 4.7.2](https://github.com/godotengine/godot/releases/tag/4.7.2-stable) — **standard version** (not .NET)
 - [Git](https://git-scm.com/downloads)
 - [Git LFS](https://git-lfs.com/) — required for art and audio files
 - Optional: [GitHub Desktop](https://desktop.github.com/) if you prefer not to use the command line
@@ -79,25 +80,30 @@ Bored of living the same day over and over, you leave your town walls for the fi
 ### 2. Clone the repository
 
 ```bash
-git lfs install
-git clone <repository-url>
-cd once-upon-untold-tales
+git clone https://github.com/soemink/OnceUpon.git
+cd OnceUpon
+git lfs install --local
 git lfs pull
 ```
 
 ### 3. Open in Godot
 
-1. Launch Godot 4
+1. Launch Godot 4.7.2 standard
 2. Click **Import** and select the `project.godot` file in the repo
 3. Wait for the first import to finish (it may take a few minutes)
 4. Press **F5** to run the game
+
+The foundation launches a centered placeholder title. See [setup and checks](docs/setup.md), [file placement](docs/project_structure.md), and [contribution workflow](docs/contributing.md) before starting a feature. Blender is optional for contributors who create models; it is not required to run this foundation.
 
 ---
 
 ## Project Structure
 
 ```
-once-upon-untold-tales/
+OnceUpon/
+├── project.godot         # Root project; import this file
+├── .godot-version        # Exact engine pin: 4.7.2
+├── .github/workflows/    # Automated import and startup check
 ├── addons/               # Plugins (Dialogic, etc.)
 ├── assets/
 │   ├── art/
@@ -111,25 +117,22 @@ once-upon-untold-tales/
 │   │   └── sfx/
 │   ├── models/           # Blender blockouts (.glb exports)
 │   └── fonts/
-├── dialogue/             # Dialogic timelines & characters
-│   ├── intro/
-│   ├── big_red/
-│   ├── wolf/
-│   ├── mermaid/
-│   ├── rapunzel/
-│   └── witch/
+├── dialogue/             # Add route folders with real dialogue content
 ├── scenes/
+│   ├── app/main.tscn     # Placeholder launch scene
 │   ├── worlds/           # Hometown, apothecary, forest, etc.
 │   ├── characters/
 │   ├── ui/
 │   └── minigames/
-├── scripts/
-│   ├── autoload/         # Global singletons (GameState, SaveManager)
-│   ├── player/
-│   ├── npc/
-│   └── systems/          # Relationships, flags, transitions
-└── project.godot
+├── systems/              # Reusable logic shared across scenes
+├── autoload/             # Persistent services, added only when needed
+├── data/                 # Shared authored definitions and resources
+├── tests/smoke/          # Main-scene startup check
+├── tools/                # Shared local/CI check command
+└── docs/                 # Setup, placement, and contribution guides
 ```
+
+Keep a scene's scripts and private resources beside its `.tscn`. Shared exported assets stay in `assets/`. Empty reserved folders contain `.gitkeep`; create character, location, route, and system subfolders when their first content arrives. See the [ownership rules](docs/project_structure.md) for examples.
 
 ---
 
@@ -138,7 +141,7 @@ once-upon-untold-tales/
 1. **Never commit directly to `main`.** `main` should always run.
 2. Create a branch for your work:
    ```bash
-   git checkout -b feature/mateo-dialogue
+   git checkout -b feature/ouut-4-project-foundation
    ```
    Branch prefixes: `feature/`, `fix/`, `art/`, `audio/`, `writing/`
 3. Commit often with clear messages:
@@ -153,7 +156,17 @@ once-upon-untold-tales/
 
 - **Only one person edits a scene (`.tscn`) at a time.** Call it in Discord before you open a shared scene.
 - Never commit the `.godot/` folder — it's in `.gitignore`.
-- Large binary files (PSD, PNG, WAV, Blender files) are tracked by Git LFS automatically.
+- Exported binary assets under `assets/` use the Git LFS formats listed in `.gitattributes`. Editable source art and audio projects stay in shared team storage outside this repository.
+- Commit `.uid` and asset `.import` metadata. Keep skills, Codex settings, agent instructions, and generated agent planning documents local and ignored.
+- Run the [shared project check and manual F5 check](docs/setup.md#verify-the-project) before requesting review.
+
+---
+
+## Project Tracking
+
+Use the [Once Upon Untold Tales Jira board](https://untoldtales.atlassian.net/jira/software/projects/OUUT/boards/2) to track project tasks, bugs, and progress. The Jira project key is `OUUT`, and the board ID is `2`.
+
+This README is the guide for the game's scope, setup, structure, and conventions. Use Jira for task-specific requirements and current work status. Reference the relevant issue key (for example, [OUUT-4](https://untoldtales.atlassian.net/browse/OUUT-4)) in branches and pull requests when working on a tracked task.
 
 ---
 
@@ -165,6 +178,7 @@ once-upon-untold-tales/
 - `snake_case` for files, variables and functions
 - `PascalCase` for class names and nodes
 - `CONSTANT_CASE` for constants
+- Typed functions and variables; tabs for GDScript indentation
 - Comment anything that isn't obvious
 
 ### File naming
@@ -197,7 +211,7 @@ flags.chosen_partner      # "mateo", "itzel", ...
 | SFX | `.wav` or `.ogg` |
 | 3D models | Export from Blender as `.glb` |
 
-Keep working files (`.psd`, `.blend`, `.kra`) in a separate `source/` folder or shared drive — only exported, game-ready files go in `assets/`.
+Keep working files (`.psd`, `.blend`, `.kra`, and audio projects) in shared team storage **outside this repository**. Ask the team for the current location. Only exported, game-ready files go in `assets/`; retain a clear naming link to their originals and include third-party credits/licenses where needed.
 
 ---
 
