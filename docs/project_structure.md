@@ -62,7 +62,7 @@ For each mutable value, define its owner, who may change it, and which signal te
 
 Children emit typed signals upward; parents call explicit methods downward and mediate siblings. Use scene-unique names or exported references instead of depending on another scene's internal node paths. Add persistent autoloads or a global event bus only when actual lifetime or communication requirements justify them. Keep scene-local state local.
 
-The foundation has a single placeholder scene and no gameplay scripts or autoload registrations. Dialogic, movement, relationships, and save/load are future work; these folders reserve a clear home for that work.
+The application entry instances `scenes/ui/title_screen/title_screen.tscn`, which owns menu focus, the temporary Start notice, and desktop Quit. Its `start_requested` signal is the integration point for the future intro: connect a listener to replace the notice. The title screen instances `scenes/ui/settings/settings_panel.tscn`, which owns master-volume preferences and saves them in `user://settings.cfg`. These UI scenes run independently with F6 and require no autoload. Dialogic, movement, relationships, and game save/load remain future work.
 
 ## Naming and import boundaries
 
