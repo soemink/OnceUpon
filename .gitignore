@@ -1,0 +1,22 @@
+# Local agent skills, instructions, settings, and generated planning documents.
+.agents/
+.codex/
+AGENTS.md
+AGENTS.override.md
+CLAUDE.md
+SKILL.md
+docs/superpowers/
+
+# Godot imports, exports, and local configuration.
+.godot/
+builds/
+*.translation
+*.log
+override.cfg
+
+# Local environment and operating-system files.
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
