@@ -4,7 +4,7 @@ Read [README](../README.md) and [file placement](project_structure.md) before ad
 
 ## Branches and review
 
-Use `feature/`, `fix/`, `art/`, `audio/`, or `writing/` branches with the issue key, for example `feature/ouut-4-project-foundation`. Never commit directly to `main`; keep it runnable. Check remote updates before starting and preserve local changes before pulling.
+Create tracked-work branches from the Jira issue's **Development → Create branch → Create branch in GitHub** flow, using `main` as the base. Use `feature/`, `fix/`, `art/`, `audio/`, or `writing/` with the uppercase issue key, for example `feature/OUUT-1-title-game-screen`. The remote branch-created event triggers the automation that moves the story to **In Progress**; creating only a local branch does not trigger it. Fetch and check out the Jira-created branch before implementing. Never commit directly to `main`; keep it runnable. Check remote updates before starting and preserve local changes before pulling.
 
 Submit a pull request and obtain a coder's review before merging. Include the OUUT issue key, the resulting behavior, checks performed, and remaining limitations. Review the diff before pushing. Run the [shared project check and visible F5/F6 check](setup.md#verify-the-project) before requesting review. Headless startup alone does not establish visual rendering, browser export, or macOS compatibility.
 

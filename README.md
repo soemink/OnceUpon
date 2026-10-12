@@ -93,7 +93,7 @@ git lfs pull
 3. Wait for the first import to finish (it may take a few minutes)
 4. Press **F5** to run the game
 
-The foundation launches a centered placeholder title. See [setup and checks](docs/setup.md), [file placement](docs/project_structure.md), and [contribution workflow](docs/contributing.md) before starting a feature. Blender is optional for contributors who create models; it is not required to run this foundation.
+The project launches the illustrated title screen with Start Game, Settings, and Quit. Start Game shows an intro-coming-soon notice until the intro is integrated. Settings controls master volume. See [setup and checks](docs/setup.md), [file placement](docs/project_structure.md), and [contribution workflow](docs/contributing.md) before starting a feature. Blender is optional for contributors who create models.
 
 ---
 
@@ -119,7 +119,7 @@ OnceUpon/
 │   └── fonts/
 ├── dialogue/             # Add route folders with real dialogue content
 ├── scenes/
-│   ├── app/main.tscn     # Placeholder launch scene
+│   ├── app/main.tscn     # Application entry; instances the title screen
 │   ├── worlds/           # Hometown, apothecary, forest, etc.
 │   ├── characters/
 │   ├── ui/
@@ -139,9 +139,10 @@ Keep a scene's scripts and private resources beside its `.tscn`. Shared exported
 ## Git Workflow
 
 1. **Never commit directly to `main`.** `main` should always run.
-2. Create a branch for your work:
+2. Create your branch from the Jira story: **Development → Create branch → Create branch in GitHub**. Choose this repository, branch from `main`, and include the uppercase issue key, for example `feature/OUUT-1-title-game-screen`. This creates the remote branch and triggers the automation that moves the story to **In Progress**. Then fetch and check out that branch locally:
    ```bash
-   git checkout -b feature/ouut-4-project-foundation
+   git fetch origin
+   git switch --track origin/feature/OUUT-1-title-game-screen
    ```
    Branch prefixes: `feature/`, `fix/`, `art/`, `audio/`, `writing/`
 3. Commit often with clear messages:

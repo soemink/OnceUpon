@@ -87,6 +87,16 @@ try {
     if ($smokeOutput -notmatch '(?m)^PROJECT_SMOKE_OK\s*$') {
         throw 'The smoke check exited without the PROJECT_SMOKE_OK success marker.'
     }
+    Write-Host 'Checking title screen interactions...'
+    $titleOutput = Invoke-GodotCheck -Executable $enginePath -Arguments @('--headless', '--path', $projectRoot, '--script', 'res://tests/ui/title_screen_test.gd') -Phase 'title screen interactions' -TimeoutSeconds 60
+    if ($titleOutput -notmatch '(?m)^TITLE_SCREEN_TEST_OK\s*$') {
+        throw 'The title screen check exited without the TITLE_SCREEN_TEST_OK success marker.'
+    }
+    $quitOutput = Invoke-GodotCheck -Executable $enginePath -Arguments @('--headless', '--path', $projectRoot, '--script', 'res://tests/ui/title_screen_test.gd', '--', '--quit-check') -Phase 'desktop Quit' -TimeoutSeconds 30
+    if ($quitOutput -notmatch '(?m)^TITLE_SCREEN_QUIT_REQUESTED\s*$') {
+        throw 'The Quit check exited without exercising the Quit button.'
+    }
+    Write-Host 'Title screen interactions and Quit passed.'
     Write-Host 'Project import and startup passed.'
     exit 0
 }

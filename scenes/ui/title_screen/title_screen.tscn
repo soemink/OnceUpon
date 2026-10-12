@@ -1,0 +1,291 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/title_screen/title_screen.gd" id="1_script"]
+[ext_resource type="Shader" path="res://scenes/ui/title_screen/white_matte.gdshader" id="2_shader"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/bg_title_screen.jpg" id="3_background"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/ui_title_logo.jpg" id="4_logo"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/ui_title_frame.jpg" id="5_frame"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/ui_start_game.jpg" id="6_start"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/ui_settings.jpg" id="7_settings"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/ui_quit.jpg" id="8_quit"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/ui_selection_ornament.jpg" id="9_ornament"]
+[ext_resource type="PackedScene" path="res://scenes/ui/settings/settings_panel.tscn" id="10_settings"]
+
+[sub_resource type="ShaderMaterial" id="WhiteMatte"]
+shader = ExtResource("2_shader")
+
+[sub_resource type="ShaderMaterial" id="OrnamentMatte"]
+shader = ExtResource("2_shader")
+shader_parameter/matte_start = 0.9
+shader_parameter/matte_end = 0.99
+
+[sub_resource type="AtlasTexture" id="BackgroundCrop"]
+atlas = ExtResource("3_background")
+region = Rect2(7, 69, 1152, 648)
+
+[sub_resource type="StyleBoxEmpty" id="InvisibleButton"]
+
+[node name="TitleScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Letterbox" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.07, 0.07, 0.04, 1)
+
+[node name="Aspect" type="AspectRatioContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+ratio = 1.7777778
+stretch_mode = 2
+
+[node name="Artwork" type="Control" parent="Aspect"]
+layout_mode = 2
+mouse_filter = 1
+
+[node name="Background" type="TextureRect" parent="Aspect/Artwork"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("BackgroundCrop")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Frame" type="TextureRect" parent="Aspect/Artwork"]
+material = SubResource("WhiteMatte")
+layout_mode = 1
+anchor_left = 0.058
+anchor_top = 0.083
+anchor_right = 0.942
+anchor_bottom = 0.917
+mouse_filter = 2
+texture = ExtResource("5_frame")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Logo" type="TextureRect" parent="Aspect/Artwork"]
+material = SubResource("WhiteMatte")
+layout_mode = 1
+anchor_left = 0.125
+anchor_top = 0.155
+anchor_right = 0.875
+anchor_bottom = 0.550
+mouse_filter = 2
+texture = ExtResource("4_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Menu" type="VBoxContainer" parent="Aspect/Artwork"]
+layout_mode = 1
+anchor_left = 0.340
+anchor_top = 0.592
+anchor_right = 0.660
+anchor_bottom = 0.862
+mouse_filter = 1
+theme_override_constants/separation = 0
+
+[node name="StartButton" type="Button" parent="Aspect/Artwork/Menu"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_disabled_color = Color(0, 0, 0, 0)
+theme_override_styles/normal = SubResource("InvisibleButton")
+theme_override_styles/hover = SubResource("InvisibleButton")
+theme_override_styles/pressed = SubResource("InvisibleButton")
+theme_override_styles/disabled = SubResource("InvisibleButton")
+theme_override_styles/focus = SubResource("InvisibleButton")
+text = "Start Game"
+
+[node name="LabelArt" type="TextureRect" parent="Aspect/Artwork/Menu/StartButton"]
+material = SubResource("WhiteMatte")
+layout_mode = 1
+anchor_left = 0.225
+anchor_top = 0.12
+anchor_right = 0.775
+anchor_bottom = 0.88
+mouse_filter = 2
+texture = ExtResource("6_start")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LeftOrnament" type="TextureRect" parent="Aspect/Artwork/Menu/StartButton"]
+visible = false
+material = SubResource("OrnamentMatte")
+layout_mode = 1
+anchor_left = 0.015
+anchor_top = 0.18
+anchor_right = 0.19
+anchor_bottom = 0.82
+mouse_filter = 2
+texture = ExtResource("9_ornament")
+expand_mode = 1
+stretch_mode = 5
+flip_h = false
+
+[node name="RightOrnament" type="TextureRect" parent="Aspect/Artwork/Menu/StartButton"]
+visible = false
+material = SubResource("OrnamentMatte")
+layout_mode = 1
+anchor_left = 0.81
+anchor_top = 0.18
+anchor_right = 0.985
+anchor_bottom = 0.82
+mouse_filter = 2
+texture = ExtResource("9_ornament")
+expand_mode = 1
+stretch_mode = 5
+flip_h = true
+
+[node name="SettingsButton" type="Button" parent="Aspect/Artwork/Menu"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_disabled_color = Color(0, 0, 0, 0)
+theme_override_styles/normal = SubResource("InvisibleButton")
+theme_override_styles/hover = SubResource("InvisibleButton")
+theme_override_styles/pressed = SubResource("InvisibleButton")
+theme_override_styles/disabled = SubResource("InvisibleButton")
+theme_override_styles/focus = SubResource("InvisibleButton")
+text = "Settings"
+
+[node name="LabelArt" type="TextureRect" parent="Aspect/Artwork/Menu/SettingsButton"]
+material = SubResource("WhiteMatte")
+layout_mode = 1
+anchor_left = 0.3
+anchor_top = 0.12
+anchor_right = 0.7
+anchor_bottom = 0.88
+mouse_filter = 2
+texture = ExtResource("7_settings")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LeftOrnament" type="TextureRect" parent="Aspect/Artwork/Menu/SettingsButton"]
+visible = false
+material = SubResource("OrnamentMatte")
+layout_mode = 1
+anchor_left = 0.015
+anchor_top = 0.18
+anchor_right = 0.19
+anchor_bottom = 0.82
+mouse_filter = 2
+texture = ExtResource("9_ornament")
+expand_mode = 1
+stretch_mode = 5
+flip_h = false
+
+[node name="RightOrnament" type="TextureRect" parent="Aspect/Artwork/Menu/SettingsButton"]
+visible = false
+material = SubResource("OrnamentMatte")
+layout_mode = 1
+anchor_left = 0.81
+anchor_top = 0.18
+anchor_right = 0.985
+anchor_bottom = 0.82
+mouse_filter = 2
+texture = ExtResource("9_ornament")
+expand_mode = 1
+stretch_mode = 5
+flip_h = true
+
+[node name="QuitButton" type="Button" parent="Aspect/Artwork/Menu"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_disabled_color = Color(0, 0, 0, 0)
+theme_override_styles/normal = SubResource("InvisibleButton")
+theme_override_styles/hover = SubResource("InvisibleButton")
+theme_override_styles/pressed = SubResource("InvisibleButton")
+theme_override_styles/disabled = SubResource("InvisibleButton")
+theme_override_styles/focus = SubResource("InvisibleButton")
+text = "Quit"
+
+[node name="LabelArt" type="TextureRect" parent="Aspect/Artwork/Menu/QuitButton"]
+material = SubResource("WhiteMatte")
+layout_mode = 1
+anchor_left = 0.407
+anchor_top = 0.12
+anchor_right = 0.593
+anchor_bottom = 0.88
+mouse_filter = 2
+texture = ExtResource("8_quit")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LeftOrnament" type="TextureRect" parent="Aspect/Artwork/Menu/QuitButton"]
+visible = false
+material = SubResource("OrnamentMatte")
+layout_mode = 1
+anchor_left = 0.015
+anchor_top = 0.18
+anchor_right = 0.19
+anchor_bottom = 0.82
+mouse_filter = 2
+texture = ExtResource("9_ornament")
+expand_mode = 1
+stretch_mode = 5
+flip_h = false
+
+[node name="RightOrnament" type="TextureRect" parent="Aspect/Artwork/Menu/QuitButton"]
+visible = false
+material = SubResource("OrnamentMatte")
+layout_mode = 1
+anchor_left = 0.81
+anchor_top = 0.18
+anchor_right = 0.985
+anchor_bottom = 0.82
+mouse_filter = 2
+texture = ExtResource("9_ornament")
+expand_mode = 1
+stretch_mode = 5
+flip_h = true
+
+[node name="SettingsPanel" parent="." instance=ExtResource("10_settings")]
+visible = false
+layout_mode = 1
+
+[node name="StartNotice" type="AcceptDialog" parent="."]
+title = "Start Game"
+initial_position = 2
+size = Vector2i(420, 160)
+min_size = Vector2i(320, 140)
+unresizable = true
+transient = true
+exclusive = true
+dialog_text = "The demo intro is coming soon."
+dialog_autowrap = true
