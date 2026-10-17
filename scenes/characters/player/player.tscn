@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/characters/player/player.gd" id="1_player"]
+[ext_resource type="SpriteFrames" path="res://scenes/characters/player/player_frames.tres" id="2_frames"]
+
+[sub_resource type="CapsuleShape3D" id="Capsule_player"]
+radius = 0.28
+height = 1.5
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 0.2
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.75, 0)
+shape = SubResource("Capsule_player")
+
+[node name="Visual" type="AnimatedSprite3D" parent="."]
+position = Vector3(0, 0.85, 0)
+pixel_size = 0.02
+billboard = 1
+shaded = false
+alpha_cut = 1
+texture_filter = 0
+sprite_frames = ExtResource("2_frames")
+animation = &"idle_down"
+autoplay = "idle_down"

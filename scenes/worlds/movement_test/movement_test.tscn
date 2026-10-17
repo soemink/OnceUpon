@@ -1,0 +1,330 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/characters/player/player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://scenes/worlds/movement_test/movement_test.gd" id="2_room"]
+[ext_resource type="Script" path="res://scenes/worlds/movement_test/follow_camera.gd" id="3_camera"]
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 1
+background_color = Color(0.12, 0.17, 0.18, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.84, 0.9, 0.94, 1)
+ambient_light_energy = 0.75
+reflected_light_source = 2
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.72, 0.76, 0.65, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_floor"]
+material = SubResource("Material_floor")
+size = Vector3(24.5, 0.5, 24.5)
+
+[sub_resource type="BoxShape3D" id="Shape_floor"]
+size = Vector3(24.5, 0.5, 24.5)
+
+[sub_resource type="StandardMaterial3D" id="Material_wall"]
+albedo_color = Color(0.43, 0.56, 0.5, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_boundary"]
+material = SubResource("Material_wall")
+size = Vector3(24.5, 1.5, 0.5)
+
+[sub_resource type="BoxShape3D" id="Shape_boundary"]
+size = Vector3(24.5, 1.5, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="Material_obstacle"]
+albedo_color = Color(0.72, 0.52, 0.34, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_obstacle"]
+material = SubResource("Material_obstacle")
+size = Vector3(1, 2, 6)
+
+[sub_resource type="BoxShape3D" id="Shape_obstacle"]
+size = Vector3(1, 2, 6)
+
+[sub_resource type="StandardMaterial3D" id="Material_grid"]
+shading_mode = 0
+albedo_color = Color(0.63, 0.68, 0.57, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_grid"]
+material = SubResource("Material_grid")
+size = Vector3(24, 0.006, 0.025)
+
+[sub_resource type="StyleBoxFlat" id="Style_hud"]
+content_margin_left = 28.0
+content_margin_top = 20.0
+content_margin_right = 28.0
+content_margin_bottom = 20.0
+bg_color = Color(0.06, 0.11, 0.12, 0.93)
+border_width_left = 3
+border_color = Color(0.71, 0.85, 0.62, 1)
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+
+[node name="MovementTest" type="Node3D"]
+script = ExtResource("2_room")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_room")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-65, -25, 0)
+light_color = Color(1, 0.92, 0.78, 1)
+light_energy = 1.0
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.25, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("Mesh_floor")
+
+[node name="Shape" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("Shape_floor")
+
+[node name="North" type="StaticBody3D" parent="."]
+position = Vector3(0, 0.75, -12)
+
+[node name="Mesh" type="MeshInstance3D" parent="North"]
+mesh = SubResource("Mesh_boundary")
+
+[node name="Shape" type="CollisionShape3D" parent="North"]
+shape = SubResource("Shape_boundary")
+
+[node name="South" type="StaticBody3D" parent="."]
+position = Vector3(0, 0.75, 12)
+
+[node name="Mesh" type="MeshInstance3D" parent="South"]
+mesh = SubResource("Mesh_boundary")
+
+[node name="Shape" type="CollisionShape3D" parent="South"]
+shape = SubResource("Shape_boundary")
+
+[node name="East" type="StaticBody3D" parent="."]
+position = Vector3(12, 0.75, 0)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="East"]
+mesh = SubResource("Mesh_boundary")
+
+[node name="Shape" type="CollisionShape3D" parent="East"]
+shape = SubResource("Shape_boundary")
+
+[node name="West" type="StaticBody3D" parent="."]
+position = Vector3(-12, 0.75, 0)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="West"]
+mesh = SubResource("Mesh_boundary")
+
+[node name="Shape" type="CollisionShape3D" parent="West"]
+shape = SubResource("Shape_boundary")
+
+[node name="LongWall" type="StaticBody3D" parent="."]
+position = Vector3(3, 1, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="LongWall"]
+mesh = SubResource("Mesh_obstacle")
+
+[node name="Shape" type="CollisionShape3D" parent="LongWall"]
+shape = SubResource("Shape_obstacle")
+
+[node name="CornerArm" type="StaticBody3D" parent="."]
+position = Vector3(-4, 1, -4)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="CornerArm"]
+mesh = SubResource("Mesh_obstacle")
+
+[node name="Shape" type="CollisionShape3D" parent="CornerArm"]
+shape = SubResource("Shape_obstacle")
+
+[node name="CornerStem" type="StaticBody3D" parent="."]
+position = Vector3(-6.5, 1, -1.5)
+
+[node name="Mesh" type="MeshInstance3D" parent="CornerStem"]
+mesh = SubResource("Mesh_obstacle")
+
+[node name="Shape" type="CollisionShape3D" parent="CornerStem"]
+shape = SubResource("Shape_obstacle")
+
+[node name="Grid" type="Node3D" parent="."]
+
+[node name="Line0_0" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, -10)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_2" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, -8)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_4" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, -6)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_6" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, -4)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_8" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, -2)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_10" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_12" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, 2)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_14" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, 4)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_16" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, 6)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_18" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, 8)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line0_20" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, 10)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+
+[node name="Line1_0" type="MeshInstance3D" parent="Grid"]
+position = Vector3(-10, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_2" type="MeshInstance3D" parent="Grid"]
+position = Vector3(-8, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_4" type="MeshInstance3D" parent="Grid"]
+position = Vector3(-6, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_6" type="MeshInstance3D" parent="Grid"]
+position = Vector3(-4, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_8" type="MeshInstance3D" parent="Grid"]
+position = Vector3(-2, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_10" type="MeshInstance3D" parent="Grid"]
+position = Vector3(0, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_12" type="MeshInstance3D" parent="Grid"]
+position = Vector3(2, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_14" type="MeshInstance3D" parent="Grid"]
+position = Vector3(4, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_16" type="MeshInstance3D" parent="Grid"]
+position = Vector3(6, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_18" type="MeshInstance3D" parent="Grid"]
+position = Vector3(8, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Line1_20" type="MeshInstance3D" parent="Grid"]
+position = Vector3(10, 0.005, 0)
+mesh = SubResource("Mesh_grid")
+cast_shadow = 0
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Player" parent="." node_paths=PackedStringArray("movement_camera") instance=ExtResource("1_player")]
+unique_name_in_owner = true
+position = Vector3(0, 0.05, 5)
+movement_camera = NodePath("../CameraRig/Camera3D")
+
+[node name="CameraRig" type="Node3D" parent="." node_paths=PackedStringArray("target")]
+unique_name_in_owner = true
+physics_interpolation_mode = 2
+script = ExtResource("3_camera")
+target = NodePath("../Player")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+position = Vector3(12, 12, 12)
+rotation_degrees = Vector3(-35.26439, 45, 0)
+projection = 1
+current = true
+size = 16.0
+far = 80.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Margin" type="MarginContainer" parent="HUD"]
+offset_left = 32.0
+offset_top = 32.0
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="HUD/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_hud")
+
+[node name="Text" type="VBoxContainer" parent="HUD/Margin/Panel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="HUD/Margin/Panel/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.91, 0.71, 1)
+theme_override_font_sizes/font_size = 30
+text = "MOVEMENT PROTOTYPE"
+
+[node name="Instructions" type="Label" parent="HUD/Margin/Panel/Text"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "WASD / Arrows   Walk     •     Hold Shift   Run
+L   Lock / unlock movement     •     R   Reset position"
+
+[node name="Status" type="Label" parent="HUD/Margin/Panel/Text"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.82, 0.85, 1)
+theme_override_font_sizes/font_size = 22
+text = "Idle  |  Facing down"

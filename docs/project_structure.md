@@ -62,7 +62,9 @@ For each mutable value, define its owner, who may change it, and which signal te
 
 Children emit typed signals upward; parents call explicit methods downward and mediate siblings. Use scene-unique names or exported references instead of depending on another scene's internal node paths. Add persistent autoloads or a global event bus only when actual lifetime or communication requirements justify them. Keep scene-local state local.
 
-The application entry instances `scenes/ui/title_screen/title_screen.tscn`, which owns menu focus, the temporary Start notice, and desktop Quit. Its `start_requested` signal is the integration point for the future intro: connect a listener to replace the notice. The title screen instances `scenes/ui/settings/settings_panel.tscn`, which owns master-volume preferences and saves them in `user://settings.cfg`. These UI scenes run independently with F6 and require no autoload. Dialogic, movement, relationships, and game save/load remain future work.
+The application entry instances `scenes/ui/title_screen/title_screen.tscn`, which owns menu focus, the temporary Start notice, and desktop Quit. Its `start_requested` signal is the integration point for the future intro: connect a listener to replace the notice. The title screen instances `scenes/ui/settings/settings_panel.tscn`, which owns master-volume preferences and saves them in `user://settings.cfg`. These UI scenes run independently with F6 and require no autoload.
+
+`scenes/characters/player/player.tscn` owns keyboard locomotion, collision, facing, and movement locking. The standalone `scenes/worlds/movement_test/movement_test.tscn` composes that player, an independent following camera, obstacles, and development controls. Run it with F6; it is not connected to the title screen or story. See [movement prototype](movement_prototype.md) for its integration interface. Dialogic, relationships, story integration, and game save/load remain future work.
 
 ## Naming and import boundaries
 

@@ -97,6 +97,12 @@ try {
         throw 'The Quit check exited without exercising the Quit button.'
     }
     Write-Host 'Title screen interactions and Quit passed.'
+    Write-Host 'Checking player movement, collisions, and camera...'
+    $movementOutput = Invoke-GodotCheck -Executable $enginePath -Arguments @('--headless', '--path', $projectRoot, '--script', 'res://tests/movement/player_movement_test.gd') -Phase 'player movement' -TimeoutSeconds 60
+    if ($movementOutput -notmatch '(?m)^PLAYER_MOVEMENT_TEST_OK(?:\s|$)') {
+        throw 'The movement check exited without the PLAYER_MOVEMENT_TEST_OK success marker.'
+    }
+    Write-Host 'Player movement, collisions, and camera passed.'
     Write-Host 'Project import and startup passed.'
     exit 0
 }
