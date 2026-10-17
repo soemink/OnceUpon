@@ -95,6 +95,8 @@ git lfs pull
 
 The project launches the illustrated title screen with Start Game, Settings, and Quit. Start Game shows an intro-coming-soon notice until the intro is integrated. Settings controls master volume. See [setup and checks](docs/setup.md), [file placement](docs/project_structure.md), and [contribution workflow](docs/contributing.md) before starting a feature. Blender is optional for contributors who create models.
 
+To try the walking/running prototype, open `scenes/worlds/movement_test/movement_test.tscn` and press **F6**. Use WASD/arrows to walk, hold Shift to run, L to lock/unlock movement, and R to reset. See [movement controls and tuning](docs/movement_prototype.md).
+
 ---
 
 ## Project Structure
