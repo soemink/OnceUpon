@@ -29,7 +29,7 @@ That path is the owner's Windows installation; other contributors use their own 
 pwsh -File ./tools/check_project.ps1
 ```
 
-The check verifies the pinned engine, imports the project, checks startup, exercises title-screen input and settings, verifies desktop Quit in a separate process, and checks player movement, collisions, and camera follow. It must report `PROJECT_SMOKE_OK`, `TITLE_SCREEN_TEST_OK`, `TITLE_SCREEN_QUIT_REQUESTED`, `PLAYER_MOVEMENT_TEST_OK`, and `Project import and startup passed.` Audio preference tests use an isolated file and restore the audio bus afterward. Engine errors, a wrong engine version, missing success output, or a timeout fail the check. The same script runs on GitHub pull requests and pushes to `main`.
+The check verifies the pinned engine, imports the project, checks startup, exercises title-screen input and settings, verifies desktop Quit in a separate process, and checks player movement, collisions, reusable exploration camera controls, and illustrated forest integration. It must report `PROJECT_SMOKE_OK`, `TITLE_SCREEN_TEST_OK`, `TITLE_SCREEN_QUIT_REQUESTED`, `PLAYER_MOVEMENT_TEST_OK`, `EXPLORATION_CAMERA_TEST_OK`, `FOREST_STYLE_TEST_OK`, and `Project import and startup passed.` Audio preference tests use an isolated file and restore the audio bus afterward. Engine errors, a wrong engine version, missing success output, or a timeout fail the check. The same script runs on GitHub pull requests and pushes to `main`.
 
 For diagnostic runs without PowerShell, these engine commands work on Windows, Linux, and macOS:
 
@@ -39,9 +39,19 @@ godot --headless --path . --script res://tests/smoke/project_smoke.gd
 godot --headless --path . --script res://tests/ui/title_screen_test.gd
 godot --headless --path . --script res://tests/ui/title_screen_test.gd -- --quit-check
 godot --headless --path . --script res://tests/movement/player_movement_test.gd
+godot --headless --path . --script res://tests/camera/exploration_camera_test.gd
+godot --headless --path . --script res://tests/visual/forest_style_test.gd
 ```
 
 Inspect their output for errors and require `PROJECT_SMOKE_OK`; the PowerShell wrapper is the authoritative automated check because it checks diagnostics and timeouts as well as exit codes.
+
+For sprite-layering changes, also run the rendered occlusion regression on a desktop with a graphics device. It requires `SPRITE_OCCLUSION_TEST_OK` and exit code 0; do not add `--headless`, which cannot inspect rendered pixels:
+
+```powershell
+& 'E:\GoDot Game Engine\Godot_v4.7.2-stable_win64_console.exe' --path . --rendering-method gl_compatibility --script res://tests/visual/sprite_occlusion_test.gd
+```
+
+Use your own pinned Godot executable path. This optional desktop check compares front-sprite silhouettes across camera angles; the shared headless CI check remains usable without a display.
 
 Also perform the visible editor check:
 

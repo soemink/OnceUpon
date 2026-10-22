@@ -7,6 +7,14 @@ extends Node3D
 @onready var _spawn_position: Vector3 = _player.position
 
 
+func _ready() -> void:
+	# Retain the tested collision layout beneath the illustrated environment.
+	for obstacle: Node in get_children():
+		if obstacle is StaticBody3D and obstacle.has_node("Mesh"):
+			(obstacle.get_node("Mesh") as MeshInstance3D).visible = false
+	$Grid.visible = false
+
+
 func _process(_delta: float) -> void:
 	var state: String = String(_player.motion).capitalize()
 	if not _player.is_movement_enabled():
