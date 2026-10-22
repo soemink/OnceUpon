@@ -95,7 +95,11 @@ git lfs pull
 
 The project launches the illustrated title screen with Start Game, Settings, and Quit. Start Game shows an intro-coming-soon notice until the intro is integrated. Settings controls master volume. See [setup and checks](docs/setup.md), [file placement](docs/project_structure.md), and [contribution workflow](docs/contributing.md) before starting a feature. Blender is optional for contributors who create models.
 
-To try the walking/running prototype, open `scenes/worlds/movement_test/movement_test.tscn` and press **F6**. Use WASD/arrows to walk, hold Shift to run, L to lock/unlock movement, and R to reset. See [movement controls and tuning](docs/movement_prototype.md).
+To try the movement and camera prototype, open `scenes/worlds/movement_test/movement_test.tscn` and press **F6**. Use WASD/arrows to walk, hold Shift to run at twice walking speed, Q/E to rotate the camera, mouse wheel to zoom, L to lock/unlock movement, and R to reset. See [movement controls and tuning](docs/movement_prototype.md).
+
+The movement room also contains a temporary illustrated forest art test: flat tree/rock cutouts, textured ground, and a winding path over the existing collision layout. It is a visual prototype for team review, not final environment art.
+
+Keep this room as a working reference for later game development: reuse the player and camera scenes, controls, movement locks, collision conventions, and sprite-layering approach when building the intro and Big Red's route. Create actual story locations in their own scene folders with approved assets and location-specific collisions. See [the development handoff](docs/movement_prototype.md#reference-for-future-development) before integrating them.
 
 ---
 

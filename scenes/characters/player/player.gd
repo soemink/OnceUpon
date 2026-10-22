@@ -4,8 +4,13 @@ extends CharacterBody3D
 ## The composing scene supplies its camera and controls movement locks.
 
 @export_range(0.0, 20.0, 0.1) var walk_speed: float = 3.0
-@export_range(0.0, 30.0, 0.1) var run_speed: float = 4.5
 @export var movement_camera: Camera3D
+## Optional provider of get_movement_basis(), used for requested camera headings.
+@export var movement_reference: Node3D
+
+var run_speed: float:
+	get:
+		return walk_speed * 2.0
 
 var facing: StringName = &"down"
 var motion: StringName = &"idle"
@@ -53,6 +58,9 @@ func is_movement_enabled() -> bool:
 
 
 func _ground_direction(direction: Vector2) -> Vector3:
+	if is_instance_valid(movement_reference) and movement_reference.has_method("get_movement_basis"):
+		var movement_basis: Basis = movement_reference.get_movement_basis()
+		return (movement_basis.x * direction.x + movement_basis.z * direction.y).limit_length(1.0)
 	if not is_instance_valid(movement_camera):
 		return Vector3(direction.x, 0, direction.y)
 	var right: Vector3 = movement_camera.global_basis.x

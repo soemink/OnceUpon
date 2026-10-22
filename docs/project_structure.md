@@ -21,6 +21,7 @@ OnceUpon/
     app/main.tscn
     worlds/
     characters/
+    camera/exploration_camera_rig.tscn
     ui/
     minigames/
   systems/
@@ -40,6 +41,7 @@ Braces above list sibling directories or files. Empty reserved folders contain `
 | `scenes/app/` | Entry and composition of world and UI scenes | `main.tscn` |
 | `scenes/worlds/<location>/` | A location's scene and local behavior | `forest/forest.tscn` and `forest.gd` |
 | `scenes/characters/<type>/` | Character scenes and local behavior | `player/player.tscn` and `player.gd` |
+| `scenes/camera/` | Reusable exploration camera scene and its local script | `exploration_camera_rig.tscn` and `.gd` |
 | `scenes/ui/<component>/` | UI scenes and their scripts | `relationship_meter/relationship_meter.tscn` |
 | `scenes/minigames/<game>/` | One self-contained minigame | Its scenes, scripts, and private resources |
 | `systems/<system>/` | Logic reused by multiple scenes | Relationship calculations; no UI ownership |
@@ -64,7 +66,9 @@ Children emit typed signals upward; parents call explicit methods downward and m
 
 The application entry instances `scenes/ui/title_screen/title_screen.tscn`, which owns menu focus, the temporary Start notice, and desktop Quit. Its `start_requested` signal is the integration point for the future intro: connect a listener to replace the notice. The title screen instances `scenes/ui/settings/settings_panel.tscn`, which owns master-volume preferences and saves them in `user://settings.cfg`. These UI scenes run independently with F6 and require no autoload.
 
-`scenes/characters/player/player.tscn` owns keyboard locomotion, collision, facing, and movement locking. The standalone `scenes/worlds/movement_test/movement_test.tscn` composes that player, an independent following camera, obstacles, and development controls. Run it with F6; it is not connected to the title screen or story. See [movement prototype](movement_prototype.md) for its integration interface. Dialogic, relationships, story integration, and game save/load remain future work.
+`scenes/characters/player/player.tscn` owns keyboard locomotion, collision, facing, and movement locking. `scenes/camera/exploration_camera_rig.tscn` owns perspective framing, smooth following, requested heading, orbit/zoom transitions, and camera input locking. The standalone `scenes/worlds/movement_test/movement_test.tscn` composes those scenes, obstacles, and development controls. Run it with F6; it is not connected to the title screen or story. See [movement prototype](movement_prototype.md) for their integration interfaces. Dialogic, relationships, story integration, and game save/load remain future work.
+
+The movement test room is the reference and regression sandbox for later production development. Reuse its player/camera components and integration conventions in new story-location folders; keep its temporary scenery, layout, debug HUD, and debug shortcuts local to the test room. Follow the [development handoff](movement_prototype.md#reference-for-future-development) when bringing in approved assets and storyline systems.
 
 ## Naming and import boundaries
 

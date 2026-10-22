@@ -1,12 +1,13 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/characters/player/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://scenes/worlds/movement_test/movement_test.gd" id="2_room"]
-[ext_resource type="Script" path="res://scenes/worlds/movement_test/follow_camera.gd" id="3_camera"]
+[ext_resource type="PackedScene" path="res://scenes/camera/exploration_camera_rig.tscn" id="3_camera"]
+[ext_resource type="Script" path="res://scenes/worlds/movement_test/forest_scenery.gd" id="4_forest"]
 
 [sub_resource type="Environment" id="Environment_room"]
 background_mode = 1
-background_color = Color(0.12, 0.17, 0.18, 1)
+background_color = Color(0.35, 0.42, 0.32, 1)
 ambient_light_source = 3
 ambient_light_color = Color(0.84, 0.9, 0.94, 1)
 ambient_light_energy = 0.75
@@ -73,8 +74,8 @@ environment = SubResource("Environment_room")
 [node name="Sun" type="DirectionalLight3D" parent="."]
 rotation_degrees = Vector3(-65, -25, 0)
 light_color = Color(1, 0.92, 0.78, 1)
-light_energy = 1.0
-shadow_enabled = true
+light_energy = 0.35
+shadow_enabled = false
 
 [node name="Floor" type="StaticBody3D" parent="."]
 position = Vector3(0, -0.25, 0)
@@ -152,6 +153,9 @@ mesh = SubResource("Mesh_obstacle")
 shape = SubResource("Shape_obstacle")
 
 [node name="Grid" type="Node3D" parent="."]
+
+[node name="Scenery" type="Node3D" parent="."]
+script = ExtResource("4_forest")
 
 [node name="Line0_0" type="MeshInstance3D" parent="Grid"]
 position = Vector3(0, 0.005, -10)
@@ -274,24 +278,15 @@ mesh = SubResource("Mesh_grid")
 cast_shadow = 0
 rotation_degrees = Vector3(0, 90, 0)
 
-[node name="Player" parent="." node_paths=PackedStringArray("movement_camera") instance=ExtResource("1_player")]
+[node name="Player" parent="." node_paths=PackedStringArray("movement_camera", "movement_reference") instance=ExtResource("1_player")]
 unique_name_in_owner = true
 position = Vector3(0, 0.05, 5)
 movement_camera = NodePath("../CameraRig/Camera3D")
+movement_reference = NodePath("../CameraRig")
 
-[node name="CameraRig" type="Node3D" parent="." node_paths=PackedStringArray("target")]
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_camera")]
 unique_name_in_owner = true
-physics_interpolation_mode = 2
-script = ExtResource("3_camera")
 target = NodePath("../Player")
-
-[node name="Camera3D" type="Camera3D" parent="CameraRig"]
-position = Vector3(12, 12, 12)
-rotation_degrees = Vector3(-35.26439, 45, 0)
-projection = 1
-current = true
-size = 16.0
-far = 80.0
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
@@ -320,6 +315,7 @@ text = "MOVEMENT PROTOTYPE"
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "WASD / Arrows   Walk     •     Hold Shift   Run
+Q / E   Rotate view     •     Mouse wheel   Zoom
 L   Lock / unlock movement     •     R   Reset position"
 
 [node name="Status" type="Label" parent="HUD/Margin/Panel/Text"]

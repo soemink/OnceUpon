@@ -76,10 +76,10 @@ func _check_walking_and_running() -> void:
 	_expect(_near(_speed(), 3.0), "Diagonal walking must not be faster.")
 	Input.action_press(&"run")
 	await _tick()
-	_expect(_near(_speed(), 4.5), "Running must reach 4.5 m/s immediately.")
+	_expect(_near(_speed(), 6.0), "Running must reach 6.0 m/s immediately.")
 	Input.action_release(&"move_up")
 	await _tick()
-	_expect(_near(_speed(), 4.5), "Cardinal and diagonal running must have equal speed.")
+	_expect(_near(_speed(), 6.0), "Cardinal and diagonal running must have equal speed.")
 	Input.action_release(&"run")
 	await _tick()
 	_expect(_near(_speed(), 3.0), "Releasing Shift must return immediately to walking.")
@@ -101,15 +101,16 @@ func _check_walking_and_running() -> void:
 	_expect(_horizontal_velocity().normalized().dot(forward.normalized()) > 0.999, "Up must follow the camera's ground-plane forward.")
 	_release_inputs()
 	_player.set("walk_speed", 2.0)
-	_player.set("run_speed", 6.0)
 	Input.action_press(&"move_down")
 	await _tick()
 	_expect(_near(_speed(), 2.0), "Walking speed must be tunable.")
 	Input.action_press(&"run")
 	await _tick()
-	_expect(_near(_speed(), 6.0), "Running speed must be tunable independently.")
+	_expect(_near(_speed(), 4.0), "Running must remain exactly twice the tuned walking speed.")
+	_player.set("walk_speed", 0.0)
+	await _tick()
+	_expect(_near(_speed(), 0.0), "Zero walking speed must also stop running.")
 	_player.set("walk_speed", 3.0)
-	_player.set("run_speed", 4.5)
 	_release_inputs()
 
 
@@ -130,7 +131,7 @@ func _check_locking_and_facing() -> void:
 	_expect(sprite.animation == &"idle_left", "A stopped player must retain its last facing.")
 	_player.call("set_movement_enabled", true)
 	await _tick()
-	_expect(_near(_speed(), 4.5), "Unlocking must restore held keyboard controls.")
+	_expect(_near(_speed(), 6.0), "Unlocking must restore held keyboard controls.")
 	_release_inputs()
 	await _tick()
 	_expect(sprite.animation == &"idle_left", "Releasing controls must preserve facing.")
@@ -156,7 +157,7 @@ func _check_physical_keyboard_and_room_controls() -> void:
 	_send_key(KEY_D, true)
 	_send_key(KEY_SHIFT, true)
 	await _tick(3)
-	_expect(_near(_speed(), 4.5), "Physical Shift must switch physical movement input to running.")
+	_expect(_near(_speed(), 6.0), "Physical Shift must switch physical movement input to running.")
 	_send_key(KEY_L, true)
 	_send_key(KEY_L, false)
 	await _tick()
@@ -164,7 +165,7 @@ func _check_physical_keyboard_and_room_controls() -> void:
 	_send_key(KEY_L, true)
 	_send_key(KEY_L, false)
 	await _tick()
-	_expect(_player.call("is_movement_enabled") and _near(_speed(), 4.5), "A second L must unlock movement.")
+	_expect(_player.call("is_movement_enabled") and _near(_speed(), 6.0), "A second L must unlock movement.")
 	_send_key(KEY_D, false)
 	_send_key(KEY_SHIFT, false)
 	await _tick()
@@ -174,7 +175,7 @@ func _check_physical_keyboard_and_room_controls() -> void:
 	_send_key(KEY_R, false)
 	await _tick(2)
 	_expect(_player.position.distance_to(Vector3(0, 0, 5)) < 0.1, "R must restore the room's spawn position.")
-	_expect(_room.get_node("CameraRig").position.distance_to(_player.position) < 0.1, "R must snap the following camera to the reset player.")
+	_expect(_room.get_node("CameraRig").position.distance_to(_player.position + _room.get_node("CameraRig").get("target_offset")) < 0.1, "R must snap the following camera to the reset player.")
 
 
 func _check_focus() -> void:
@@ -206,8 +207,9 @@ func _send_key(key: int, pressed: bool) -> void:
 
 func _check_collisions() -> void:
 	# Identity camera basis makes right = world +X for deterministic wall checks.
-	var orientation: Vector3 = _camera.rotation
-	_camera.rotation = Vector3(-PI / 4.0, 0, 0)
+	var rig: Node3D = _room.get_node("CameraRig") as Node3D
+	var orientation: float = rig.call("get_target_heading")
+	rig.call("set_heading", 0.0, true)
 	await _reset(Vector3(0, 0.05, 0))
 	Input.action_press(&"move_right")
 	Input.action_press(&"run")
@@ -238,24 +240,26 @@ func _check_collisions() -> void:
 	_expect(_player.position.distance_to(corner) > 0.5, "The player must escape a corner when moving away.")
 	_release_inputs()
 	_expect(_player.is_on_floor(), "The character must remain grounded.")
-	_camera.rotation = orientation
+	rig.call("set_heading", orientation, true)
 
 
 func _check_camera() -> void:
 	await _reset(Vector3(0, 0.05, 5))
 	var rig: Node3D = _room.get_node("CameraRig") as Node3D
 	var rotation_before: Vector3 = _camera.global_rotation
-	var size_before: float = _camera.size
+	var distance_before: float = _camera.global_position.distance_to(rig.global_position)
+	var fov_before: float = _camera.fov
 	var position_before: Vector3 = rig.position
 	Input.action_press(&"move_left")
 	await _tick(12)
 	_release_inputs()
 	await create_timer(0.25).timeout
 	_expect(rig.position.distance_to(position_before) > 0.1, "The camera rig must follow player translation.")
-	_expect(rig.position.distance_to(_player.position) < 0.2, "Follow smoothing must converge toward the player.")
+	_expect(rig.position.distance_to(_player.position + rig.get("target_offset")) < 0.2, "Follow smoothing must converge toward the player.")
 	_expect(_camera.global_rotation.is_equal_approx(rotation_before), "Following must preserve the isometric camera angle.")
-	_expect(is_equal_approx(_camera.size, size_before), "Running and following must not change zoom.")
-	_expect(_camera.projection == Camera3D.PROJECTION_ORTHOGONAL, "The test room must use an orthographic camera.")
+	_expect(_near(_camera.global_position.distance_to(rig.global_position), distance_before), "Running and following must not change zoom.")
+	_expect(is_equal_approx(_camera.fov, fov_before), "Following must preserve perspective field of view.")
+	_expect(_camera.projection == Camera3D.PROJECTION_PERSPECTIVE, "The test room must use a perspective camera.")
 
 
 func _reset(at: Vector3) -> void:

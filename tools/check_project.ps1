@@ -103,6 +103,18 @@ try {
         throw 'The movement check exited without the PLAYER_MOVEMENT_TEST_OK success marker.'
     }
     Write-Host 'Player movement, collisions, and camera passed.'
+    Write-Host 'Checking reusable exploration camera controls...'
+    $cameraOutput = Invoke-GodotCheck -Executable $enginePath -Arguments @('--headless', '--path', $projectRoot, '--script', 'res://tests/camera/exploration_camera_test.gd') -Phase 'exploration camera' -TimeoutSeconds 60
+    if ($cameraOutput -notmatch '(?m)^EXPLORATION_CAMERA_TEST_OK(?:\s|$)') {
+        throw 'The camera check exited without the EXPLORATION_CAMERA_TEST_OK success marker.'
+    }
+    Write-Host 'Exploration camera controls passed.'
+    Write-Host 'Checking illustrated forest integration...'
+    $forestOutput = Invoke-GodotCheck -Executable $enginePath -Arguments @('--headless', '--path', $projectRoot, '--script', 'res://tests/visual/forest_style_test.gd') -Phase 'forest integration' -TimeoutSeconds 60
+    if ($forestOutput -notmatch '(?m)^FOREST_STYLE_TEST_OK(?:\s|$)') {
+        throw 'The forest check exited without the FOREST_STYLE_TEST_OK success marker.'
+    }
+    Write-Host 'Illustrated forest integration passed.'
     Write-Host 'Project import and startup passed.'
     exit 0
 }

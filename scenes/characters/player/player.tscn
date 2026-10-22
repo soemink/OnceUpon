@@ -18,11 +18,12 @@ position = Vector3(0, 0.75, 0)
 shape = SubResource("Capsule_player")
 
 [node name="Visual" type="AnimatedSprite3D" parent="."]
-position = Vector3(0, 0.85, 0)
+sorting_use_aabb_center = false
+offset = Vector2(0, 42.5)
 pixel_size = 0.02
 billboard = 1
 shaded = false
-alpha_cut = 1
+alpha_cut = 0
 texture_filter = 0
 sprite_frames = ExtResource("2_frames")
 animation = &"idle_down"

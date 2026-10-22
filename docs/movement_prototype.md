@@ -1,43 +1,90 @@
-# Walking and running prototype — OUUT-2
+# Movement and camera prototype — OUUT-2 / OUUT-6
 
-Open `scenes/worlds/movement_test/movement_test.tscn` in Godot 4.7.2 standard and press **F6** to run this scene. F5 still opens the title screen. The test room is development content, not the story's intro.
+Open `scenes/worlds/movement_test/movement_test.tscn` in Godot 4.7.2 standard and press **F6**. F5 still opens the title screen. The room is development content, not the story intro.
 
 | Input | Behavior |
 | --- | --- |
-| WASD or arrow keys | Walk relative to the screen |
-| Hold Shift while moving | Run |
+| WASD or arrow keys | Walk relative to the requested camera direction |
+| Hold Shift while moving | Run at exactly twice walking speed |
 | Release directions | Stop immediately |
-| L | Simulate a dialogue/menu movement lock; press again to resume |
-| R | Reset player and camera, and unlock movement |
+| Q / E | Rotate view left / right by 45 degrees per press |
+| Mouse wheel up / down | Zoom in / out within limits |
+| L | Toggle the test movement lock |
+| R | Reset player, unlock movement, and snap camera to the player |
 
-Move around the long wall, the L-shaped obstacle, and the room's perimeter. Walk speed starts at 3 m/s; run speed starts at 4.5 m/s. Starts, stops, and switching speed have no horizontal acceleration. Diagonal movement has the same ground speed as cardinal movement. The character has four facing directions and keeps the last facing when stopped. Walking into a wall stops the walk animation when the body stops moving.
+Walking starts at 3 m/s and running at 6 m/s. Changing walking speed also changes running speed to preserve the 2x ratio. Starts, stops, and speed changes are immediate; diagonals have the same ground speed as cardinal directions. The placeholder sprite has four facing directions, retains its last facing when stopped, and stops its locomotion animation when blocked by a wall.
 
-The camera follows at a fixed isometric angle and orthographic zoom. Follow smoothing is independent of movement responsiveness. Physics interpolation smooths rendering between physics ticks. Lose application focus to verify player movement stops; held controls can resume on focus return.
+The elevated perspective camera follows smoothly without rotating when the character turns. Q/E sets a new heading in 45-degree steps; holding a key does not repeat the step. Rotation takes the shortest path across 360 degrees. Movement uses the requested heading immediately while the visible camera catches up, matching the reference behavior researched for OUUT-6. Wheel zoom transitions smoothly, with a steeper downward pitch when farther out. These defaults are inspired by Don't Starve Together and tuned to this prototype's scale.
+
+## Illustrated forest art test
+
+The same room now tests the mechanics inside a temporary illustrated forest. Upright camera-facing tree, rock, and fern cutouts sit over a textured ground plane and irregular ochre path. Unshaded artwork and soft ground shadows reduce the appearance of solid 3D blocks. The original floor, long wall, L-shaped corner, and perimeter collision shapes remain in their tested positions; continuous rows of illustrated stones mark those obstacle footprints. Additional tree trunks have narrow cylinder collisions. The grid and original block meshes are hidden.
+
+Characters and scenery use alpha-blended whole-cutout sorting with origins at their feet. This gives coherent front/behind layering as the camera orbits, rather than letting tilted character and upright scenery planes slice through one another. Ordinary opaque-ground depth testing remains enabled. Dark rubble strips and overlapping stone-shadow chains are intentionally absent; only soft tree/player grounding shadows remain.
+
+`forest_scenery.gd` owns only this room's decorative composition. It instances the generated tree and ground exports from `assets/art/environments/forest_style_test/` and original SVG rock/fern placeholders. This is a visual comparison prototype, not final approved environment art or a story location. The existing placeholder character remains unchanged. Final art direction and production assets still belong to the art team.
+
+When replacing art, keep the trunk base grounded, preserve alpha, and test every 45-degree orbit and both zoom limits. Run `tests/visual/forest_style_test.gd` (included in the shared check) to verify the clearing supports movement, illustrated trunk collisions block passage, and lock/reset/camera integration continue to work.
+
+The separate rendered `tests/visual/sprite_occlusion_test.gd` compares the opaque silhouette of a front cutout in isolation and with another cutout behind it. It checks both front/behind arrangements at all eight headings and the close/distant viewing pitches. Run without `--headless`; see the command in [setup](setup.md). This catches rendering regressions that headless movement tests cannot detect.
+
+## Reference for future development
+
+Retain this test room as a reference and regression sandbox for actual game development. It demonstrates the agreed movement, camera, collision, and illustrated-sprite behavior together; its layout is not an authored story location. Keep the room runnable as production scenes are added so changes can be compared against a known example.
+
+For the intro and Big Red's route:
+
+1. Create each actual location under `scenes/worlds/<location>/`. Instance the reusable player and camera scenes and assign their target/movement references as described below. Keep room-specific scenery generation, HUD, and L/R debug shortcuts in this test room.
+2. Replace temporary character and environment artwork with team-approved exports. Preserve animation names or update their mappings, keep drawing/sorting origins at ground contact, and fit collision shapes to the new assets' walkable footprints.
+3. Connect future dialogue, menus, and cutscenes through the movement/camera control interfaces. The composing story scene owns transitions and overlapping locks; dialogue progression, relationships, story flags, and saving require separate implementation.
+4. Tune camera framing and movement against each real location, then verify collision, front/behind sprite layering during orbit/zoom, and control restoration after dialogue. Run the shared checks and rendered occlusion regression after related changes.
+
+The temporary forest artwork demonstrates a possible 2D presentation and does not establish final art direction. Keep the test room and test content excluded from future story-only exports; export configuration and web/macOS validation remain separate work.
 
 ## Reuse and tune
 
-Instance `scenes/characters/player/player.tscn` in a world with floor collision. Assign its **Movement Camera** to the world's Camera3D so controls follow the camera's ground-plane axes. Without a camera reference, movement uses world X/Z axes. Set **Walk Speed** and **Run Speed** on the player instance. World collision is layer 1; the player is layer 2 and scans layer 1. The root body owns velocity, facing, and locomotion; it does not own the camera.
+Instance `scenes/characters/player/player.tscn` in a world with floor collision. Instance `scenes/camera/exploration_camera_rig.tscn` separately; set its **Target** to the player. On the player, assign **Movement Reference** to the rig and **Movement Camera** to its Camera3D. The rig's `get_movement_basis()` supplies the requested orientation. Without that provider the player uses the assigned Camera3D's ground-plane axes; without either reference it uses world X/Z axes.
 
-The current follow script belongs to the test room. Its exported **Target** and **Follow Speed** let the composing scene change its target or smoothing. Keep the rig outside the player hierarchy. Call `snap_to_target()` after teleporting and reset the player's physics interpolation, as the room's reset control does. If multiple locations later share this camera, promote it to a shared camera scene then.
+The player owns locomotion, collision, facing, and its movement lock. Set **Walk Speed** on the player; `run_speed` is a derived value, not an independent Inspector setting. World collision is layer 1; the player is layer 2 and scans layer 1.
 
-Dialogue, menus, or cutscenes should call the player's `set_movement_enabled(false)` before taking control and `set_movement_enabled(true)` when returning control. Locking clears horizontal velocity immediately while gravity and floor contact continue. `is_movement_enabled()` reports this scene-level lock; focus loss is a separate input gate and does not remove a dialogue lock. The composing world must coordinate overlapping locks; do not unlock until all its blocking UI/cutscenes have ended. Pausing the SceneTree also pauses the player.
+The camera rig owns view state and a separate camera-input lock. Its top-level transform ignores composing parent rotation and scale, so it stays upright and keeps distances in world units. Keep it outside the player hierarchy. Its Inspector settings are:
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| Target Offset | (0, 0.85, 0) | World-space framing above the target origin |
+| Initial Heading Degrees | 45 | Starting orbit heading |
+| Initial Distance | 22 | Starting camera distance |
+| Min / Max Distance | 14 / 32 | Zoom limits in world units |
+| Min / Max Pitch Degrees | 30 / 60 | Close / distant downward viewing angle |
+| Field Of View | 35 | Perspective vertical field of view |
+| Follow / Rotation / Zoom Speed | 12 / 14 / 8 | Independent exponential smoothing rates |
+| Zoom Step | 2 | Distance change per wheel event |
+
+The InputMap actions are `camera_rotate_left`, `camera_rotate_right`, `camera_zoom_in`, and `camera_zoom_out`. They default to Q/E and the mouse wheel and can be rebound through normal Godot InputMap configuration.
+
+Use `set_heading(degrees, snap=false)` and `set_distance(distance, snap=false)` for programmatic view changes; distance is clamped to configured bounds. `get_target_heading()` returns degrees; `get_target_distance()` returns the requested distance. `snap_to_target()` snaps position and in-progress view transitions to their requested values. R retains the requested heading and zoom while removing old follow/rotation/zoom lag. After teleporting a physics target, call its `reset_physics_interpolation()` before snapping the rig.
+
+Assigning a new **Target** changes who the camera follows; null or freed targets leave the anchor in place safely. Assign a new valid target and call `snap_to_target()` when an immediate handoff is required.
+
+Dialogue, menus, and cutscenes call `player.set_movement_enabled(false)` and `rig.set_controls_enabled(false)` before taking control, then restore each when finished. The composing world must coordinate overlapping locks and restore only after all blockers end. The camera lock stops user orbit/zoom inputs while allowing follow and programmatic view changes. Focused GUI controls also suppress camera keys/wheel; UI-consumed mouse events never reach world camera input. Ctrl/Alt/Meta key shortcuts and key repeats do not orbit the camera. Losing application focus gates both player and camera input without clearing their explicit locks. Pausing the SceneTree pauses both scenes.
 
 ## Placeholder art
 
-The original geometric sheet at `assets/art/characters/player/player_placeholder.svg` is temporary prototype art, not an approved character design. Its 96 × 96 cells use facing rows down, up, left, right; each row has four poses. `player_frames.tres` defines `idle_<direction>`, `walk_<direction>`, and `run_<direction>`; idle uses one pose, walk uses 8 fps, and temporary running reuses those poses at 12 fps. Replace the SpriteFrames resource with team-approved art that preserves these animation names. Art directors set final dimensions, frame counts, and running animation requirements.
+`assets/art/characters/player/player_placeholder.svg` is temporary geometric art, not an approved character design. Its 96 × 96 cells use facing rows down, up, left, right with four poses per row. `player_frames.tres` defines `idle_<direction>`, `walk_<direction>`, and `run_<direction>`; idle uses one pose, walk uses 8 fps, and temporary running reuses those poses at 12 fps. Replace it with team-approved art that preserves animation names. The billboard faces the camera throughout orbiting.
 
 ## Verification
 
-Run the shared check from `docs/setup.md`. It now includes the movement suite and requires `PLAYER_MOVEMENT_TEST_OK`. The suite exercises movement through real physics ticks, direction mappings, tunable speeds, lock/unlock, facing, floor/wall collision, sliding, corner escape, and camera following. It runs alongside existing title-screen and startup checks.
+Run the shared check from `docs/setup.md`. It requires both `PLAYER_MOVEMENT_TEST_OK` and `EXPLORATION_CAMERA_TEST_OK` alongside the existing startup/title checks. Tests exercise real physics ticks and injected keyboard/mouse events: movement ratios, collision/sliding, facing, locks/focus, orbit steps/echo/wrap, requested-heading movement during rotation, bounded zoom/pitch, smooth transitions, GUI suppression, reset, target handoff, and reuse under transformed parents.
 
-Also perform these visible checks:
+Visible checks:
 
-1. Press F6 on the room and confirm the sprite, instructions, obstacles, and grid render correctly.
-2. Walk and run in every direction. Release keys and Shift separately; check immediate response and constant diagonal speed.
-3. Run into walls and corners, slide along them, and turn away.
-4. Press L while moving; keep holding movement keys and confirm the player stays put. Press L again and confirm movement resumes.
-5. Press R after moving away; confirm player and camera reset without drifting from the old position.
-6. Switch application focus away and back. Confirm the player stops while unfocused.
-7. Watch the camera while walking, running, and stopping; check for visible jitter. Resize the window and confirm controls remain legible.
+1. Run the room; verify the character, instructions, illustrated trees/stone obstacles, textured ground, and path render clearly. Stone rows mark the continuous collision boundary.
+2. Walk/run in every direction; release movement and Shift separately and check immediate response.
+3. Orbit with Q/E while walking and running; hold a rotation key and check it adds only one step. Orbit across the starting direction in both directions.
+4. Zoom to both limits and reverse; check smooth transitions, readable framing, and increasing downward tilt farther out.
+5. Run into walls/corners, slide along them, and turn away.
+6. Press L while moving, keep holding movement, then unlock; check the sprite stops and resumes correctly.
+7. Press R during movement and camera transitions; the player resets and the camera snaps without old-position drift, retaining requested angle/zoom.
+8. Switch application focus away/back; movement stops while unfocused. Resize the window; controls remain legible. Watch walking/running/stopping for jitter.
 
-Web execution requires a matching Godot web export template, a development export preset, and a browser run. A passing desktop/headless suite alone does not verify the web build. Export configuration remains separate from this movement prototype; exclude tests and the development room from a future story-only release unless deliberately included.
+Web execution needs matching export templates, presets, and a browser run. A desktop/headless pass does not establish web behavior. Export setup remains separate scope; future story-only exports should deliberately exclude tests and the development room.
