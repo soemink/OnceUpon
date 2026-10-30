@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scenes/ui/title_screen/title_screen.gd" id="1_script"]
 [ext_resource type="Shader" path="res://scenes/ui/title_screen/white_matte.gdshader" id="2_shader"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/ui_quit.jpg" id="8_quit"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/title_screen/ui_selection_ornament.jpg" id="9_ornament"]
 [ext_resource type="PackedScene" path="res://scenes/ui/settings/settings_panel.tscn" id="10_settings"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/once_upon_menu_redo_3_91_ocarina_e3.ogg" id="11_music"]
 
 [sub_resource type="ShaderMaterial" id="WhiteMatte"]
 shader = ExtResource("2_shader")
@@ -278,6 +279,9 @@ flip_h = true
 [node name="SettingsPanel" parent="." instance=ExtResource("10_settings")]
 visible = false
 layout_mode = 1
+
+[node name="TitleMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_music")
 
 [node name="StartNotice" type="AcceptDialog" parent="."]
 title = "Start Game"

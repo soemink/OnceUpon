@@ -33,5 +33,8 @@ func _run() -> void:
 	current_scene = instance
 	await process_frame
 	await process_frame
+	instance.free()
+	# Give the audio mixer time to release the scene's stopped music playback.
+	await create_timer(0.5).timeout
 	print("PROJECT_SMOKE_OK")
 	quit(0)
