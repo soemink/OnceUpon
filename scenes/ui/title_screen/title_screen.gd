@@ -8,11 +8,14 @@ signal start_requested
 @onready var _quit_button: Button = %QuitButton
 @onready var _settings_panel: Control = $SettingsPanel
 @onready var _start_notice: AcceptDialog = $StartNotice
+@onready var _title_music: AudioStreamPlayer = $TitleMusic
 
 var _buttons: Array[Button] = []
 
 
 func _ready() -> void:
+	# Child SettingsPanel has already restored Master volume before music starts.
+	_title_music.play()
 	_buttons = [_start_button, _settings_button]
 	# Browsers own their tabs; a desktop Quit action is not useful in web builds.
 	_quit_button.visible = not OS.has_feature("web")
@@ -80,4 +83,8 @@ func _on_settings_closed() -> void:
 
 
 func _on_quit_pressed() -> void:
+	_set_menu_enabled(false)
+	_title_music.stop()
+	# Let the audio mixer release the stopped stream before engine shutdown.
+	await get_tree().create_timer(0.5).timeout
 	get_tree().quit()

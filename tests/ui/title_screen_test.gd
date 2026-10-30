@@ -26,6 +26,9 @@ func _run() -> void:
 	panel.set("settings_path", TEST_SETTINGS_PATH)
 	var original_volume: float = AudioServer.get_bus_volume_db(0)
 	var original_mute: bool = AudioServer.is_bus_mute(0)
+	var initial_settings: ConfigFile = ConfigFile.new()
+	initial_settings.set_value("audio", "master_volume", 25.0)
+	_expect(initial_settings.save(TEST_SETTINGS_PATH) == OK, "Test volume preferences must save.")
 	root.add_child(main)
 	current_scene = main
 	await process_frame
@@ -37,10 +40,24 @@ func _run() -> void:
 	if "--quit-check" in OS.get_cmdline_user_args():
 		print("TITLE_SCREEN_QUIT_REQUESTED")
 		quit_button.pressed.emit()
-		await process_frame
+		await create_timer(2.0).timeout
 		_expect(false, "Quit must exit the desktop game.")
 		quit(1)
 		return
+
+	var music: AudioStreamPlayer = title.get_node_or_null("TitleMusic") as AudioStreamPlayer
+	_expect(music != null, "Title screen must own its music player.")
+	if music != null:
+		_expect(music.playing, "Title music must start when the title screen is ready.")
+		_expect(music.bus == &"Master", "Title music must obey the existing Master volume.")
+		_expect(is_equal_approx(music.volume_db, 0.0), "Title music must preserve the recording's gain.")
+		var stream: AudioStreamOggVorbis = music.stream as AudioStreamOggVorbis
+		_expect(stream != null, "Title music must use the supplied recording exported as OGG.")
+		if stream != null:
+			_expect(stream.loop and is_zero_approx(stream.loop_offset), "Title music must repeat the full recording.")
+		music.seek(5.0)
+	_expect(is_equal_approx(AudioServer.get_bus_volume_linear(0), 0.25), "Title startup must restore saved Master volume.")
+	_expect(not AudioServer.is_bus_mute(0), "A nonzero saved volume must unmute music.")
 
 	_expect(start.text == "Start Game", "Start Game must have the story's label.")
 	_expect(settings.text == "Settings", "Settings must have the story's label.")
@@ -62,6 +79,7 @@ func _run() -> void:
 	await process_frame
 	var notice: AcceptDialog = title.get_node("StartNotice") as AcceptDialog
 	_expect(notice.visible, "Start Game must show the approved intro-coming-soon notice.")
+	_expect_music_continues(music, "opening the intro notice")
 	_expect(start.disabled and settings.disabled, "Intro notice must block the underlying menu.")
 	_expect(notice.dialog_close_on_escape, "Intro notice must enable the engine's Escape handling.")
 	notice.get_ok_button().pressed.emit()
@@ -69,6 +87,7 @@ func _run() -> void:
 	_expect(not notice.visible, "Back must close the intro notice.")
 	_expect(root.gui_get_focus_owner() == start, "Closing the notice must restore Start Game focus.")
 	_expect(not settings.disabled, "Closing the notice must enable the menu again.")
+	_expect_music_continues(music, "closing the intro notice")
 
 	# A future intro listener must replace the temporary notice.
 	title.connect("start_requested", _record_start_request)
@@ -80,6 +99,7 @@ func _run() -> void:
 	_send_mouse_click(settings.get_global_rect().get_center())
 	await process_frame
 	_expect(panel.visible, "Settings must open its panel.")
+	_expect_music_continues(music, "opening Settings")
 	_expect(start.disabled and settings.disabled and quit_button.disabled, "Settings must disable all menu buttons.")
 	_expect(panel.is_ancestor_of(root.gui_get_focus_owner()), "Focus must remain inside the settings panel.")
 	_send_key(KEY_TAB)
@@ -88,10 +108,12 @@ func _run() -> void:
 	var volume: HSlider = panel.get_node("%MasterVolume") as HSlider
 	volume.value = 0.0
 	_expect(AudioServer.is_bus_mute(0), "Zero volume must mute the master audio bus.")
+	_expect_music_continues(music, "muting Master volume")
 	var back: Button = panel.get_node("%BackButton") as Button
 	back.pressed.emit()
 	await process_frame
 	_expect(not panel.visible, "Back must close Settings.")
+	_expect_music_continues(music, "closing Settings")
 	_expect(root.gui_get_focus_owner() == settings, "Back must restore Settings-button focus.")
 	var saved: ConfigFile = ConfigFile.new()
 	_expect(saved.load(TEST_SETTINGS_PATH) == OK, "Closing Settings must persist the preferences.")
@@ -138,6 +160,29 @@ func _run() -> void:
 		await _capture("title_start_notice")
 		notice.hide()
 
+	if music != null and music.stream != null:
+		# Cross the actual recording boundary rather than waiting for a full song.
+		music.seek(music.stream.get_length() - 0.05)
+		# Seeking creates a fresh playback instance; inspect that instance's loops.
+		var previous_loops: int = music.get_stream_playback().get_loop_count()
+		await create_timer(0.25).timeout
+		_expect(music.playing, "Title music must remain active across the recording boundary.")
+		_expect(music.get_stream_playback().get_loop_count() > previous_loops, "Title music must actually loop at the recording boundary.")
+	root.remove_child(main)
+	if music != null:
+		_expect(not music.playing, "Leaving the title scene must stop its music.")
+	main.free()
+	var restored_main: Control = main_scene.instantiate() as Control
+	var restored_title: Control = restored_main.get_node("TitleScreen") as Control
+	restored_title.get_node("SettingsPanel").set("settings_path", TEST_SETTINGS_PATH)
+	root.add_child(restored_main)
+	var restored_music: AudioStreamPlayer = restored_title.get_node_or_null("TitleMusic") as AudioStreamPlayer
+	if restored_music != null:
+		_expect(restored_music.playing, "A fresh title instance must start its music.")
+	_expect(AudioServer.is_bus_mute(0), "A fresh title instance must preserve the saved mute preference.")
+	restored_main.free()
+	# Let the audio mixer release stopped playbacks before the runner exits.
+	await create_timer(0.5).timeout
 	AudioServer.set_bus_volume_db(0, original_volume)
 	AudioServer.set_bus_mute(0, original_mute)
 	DirAccess.remove_absolute(TEST_SETTINGS_PATH)
@@ -150,6 +195,12 @@ func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		_failures += 1
 		printerr("FAIL: " + message)
+
+
+func _expect_music_continues(music: AudioStreamPlayer, action: String) -> void:
+	if music != null:
+		_expect(music.playing, "Music must keep playing when " + action + ".")
+		_expect(music.get_playback_position() >= 4.5, "Music must not restart when " + action + ".")
 
 
 func _send_key(key: Key) -> void:
